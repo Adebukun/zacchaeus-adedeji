@@ -523,24 +523,47 @@ window.simulateResumeDownload = function() {
 };
 
 /* ==========================================================================
-   6. FORM SUBMISSION HANDLER
+   6. FORM SUBMISSION HANDLER (WhatsApp & Email Direct Dispatch)
    ========================================================================== */
 window.handleFormSubmit = function(e) {
   e.preventDefault();
   const submitBtn = document.getElementById('submitBtn');
   const successMsg = document.getElementById('formSuccessMessage');
 
+  const name = document.getElementById('formName')?.value.trim() || 'Client';
+  const email = document.getElementById('formEmail')?.value.trim() || '';
+  const service = document.getElementById('formService')?.value || 'Engineering Inquiry';
+  const timeline = document.getElementById('formTimeline')?.value || 'Immediate';
+  const message = document.getElementById('formMessage')?.value.trim() || '';
+
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Transmitting Engineering Scope to Zacchaeus...`;
+    submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Opening WhatsApp to send your inquiry...`;
   }
 
+  // Build structured message for direct WhatsApp delivery
+  const waText = `*New Engineering Inquiry via Portfolio*\n\n` +
+    `*From:* ${name}\n` +
+    `*Email:* ${email}\n` +
+    `*Scope:* ${service}\n` +
+    `*Timeline:* ${timeline}\n` +
+    `*Details:*\n${message}`;
+
+  const waUrl = `https://wa.me/2349074699233?text=${encodeURIComponent(waText)}`;
+
   setTimeout(() => {
+    // Open WhatsApp in new tab with the complete client message
+    window.open(waUrl, '_blank');
+
     if (submitBtn) {
       submitBtn.classList.add('hidden');
     }
     if (successMsg) {
+      successMsg.innerHTML = `
+        <i class="fa-solid fa-circle-check text-emerald-400 text-base mb-1 block"></i>
+        <span>Thank you, <strong>${name}</strong>! Your inquiry is being sent directly to Zacchaeus on WhatsApp. You can also email <a href="mailto:adedejizacchaeus@gmail.com" class="underline text-amber-400 font-bold">adedejizacchaeus@gmail.com</a>.</span>
+      `;
       successMsg.classList.remove('hidden');
     }
-  }, 800);
+  }, 600);
 };
