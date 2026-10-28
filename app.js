@@ -242,7 +242,7 @@ function initMechanicalCanvas() {
 }
 
 /* ==========================================================================
-   2. INTERACTIVE HVAC & VRV SIZING ESTIMATOR
+   2. INTERACTIVE HVAC & VRV SIZING ESTIMATOR (PURE SI UNITS)
    ========================================================================== */
 function initHvacCalculator() {
   const calcArea = document.getElementById('calcArea');
@@ -251,11 +251,16 @@ function initHvacCalculator() {
   const calcClimate = document.getElementById('calcClimate');
   const calcRecovery = document.getElementById('calcRecovery');
 
-  const resTons = document.getElementById('resTons');
   const resKw = document.getElementById('resKw');
-  const resCfm = document.getElementById('resCfm');
+  const resWatts = document.getElementById('resWatts');
+  const resM3h = document.getElementById('resM3h');
+  const resLs = document.getElementById('resLs');
   const resSavings = document.getElementById('resSavings');
   const resOpex = document.getElementById('resOpex');
+
+  // Fallback references for backwards compatibility
+  const resTons = document.getElementById('resTons');
+  const resCfm = document.getElementById('resCfm');
 
   if (!calcArea) return;
 
@@ -263,11 +268,12 @@ function initHvacCalculator() {
     const area = parseFloat(calcArea.value);
     areaVal.textContent = `${area.toLocaleString()} m²`;
 
+    // SI Unit Standards: Specific cooling load in W/m² and volumetric airflow in m³/h per m²
     const typeFactors = {
-      office: { wPerSqm: 140, cfmPerSqm: 16.5, costPerTr: 420 },
-      residential: { wPerSqm: 110, cfmPerSqm: 12.0, costPerTr: 360 },
-      hospitality: { wPerSqm: 210, cfmPerSqm: 26.0, costPerTr: 580 },
-      industrial: { wPerSqm: 175, cfmPerSqm: 20.0, costPerTr: 480 }
+      office: { wPerSqm: 140, m3hPerSqm: 28.56, costPerKw: 119.4 },
+      residential: { wPerSqm: 110, m3hPerSqm: 20.39, costPerKw: 102.4 },
+      hospitality: { wPerSqm: 210, m3hPerSqm: 44.17, costPerKw: 164.9 },
+      industrial: { wPerSqm: 175, m3hPerSqm: 33.98, costPerKw: 136.5 }
     };
 
     const climateFactors = {
@@ -288,17 +294,22 @@ function initHvacCalculator() {
 
     const totalWatts = area * typeConfig.wPerSqm * climateMult;
     const totalKw = totalWatts / 1000;
-    const totalTons = totalKw / 3.517;
 
-    const totalCfm = area * typeConfig.cfmPerSqm;
-    const baseAnnualEnergyExpense = totalTons * typeConfig.costPerTr;
+    const totalM3h = area * typeConfig.m3hPerSqm;
+    const totalLs = totalM3h / 3.6;
+    const baseAnnualEnergyExpense = totalKw * typeConfig.costPerKw;
     const annualSavingsDollars = baseAnnualEnergyExpense * recovConfig.opexMultiplier;
 
-    resTons.textContent = `${totalTons.toFixed(1)} TR`;
-    resKw.textContent = `~${totalKw.toFixed(1)} kW`;
-    resCfm.textContent = `${Math.round(totalCfm).toLocaleString()} CFM`;
-    resSavings.textContent = `${recovConfig.energyCutPercent.toFixed(1)}%`;
-    resOpex.textContent = `$${Math.round(annualSavingsDollars).toLocaleString()}`;
+    if (resKw) resKw.textContent = `${totalKw.toFixed(1)} kW`;
+    if (resWatts) resWatts.textContent = `${Math.round(totalWatts).toLocaleString()} W (Thermal Flow)`;
+    if (resM3h) resM3h.textContent = `${Math.round(totalM3h).toLocaleString()} m³/h`;
+    if (resLs) resLs.textContent = `~${Math.round(totalLs).toLocaleString()} L/s Flow`;
+    if (resSavings) resSavings.textContent = `${recovConfig.energyCutPercent.toFixed(1)}%`;
+    if (resOpex) resOpex.textContent = `$${Math.round(annualSavingsDollars).toLocaleString()}`;
+
+    // Graceful backward compatibility if old element IDs are present
+    if (resTons) resTons.textContent = `${totalKw.toFixed(1)} kW`;
+    if (resCfm) resCfm.textContent = `${Math.round(totalM3h).toLocaleString()} m³/h`;
   }
 
   calcArea.addEventListener('input', recalculate);
@@ -313,6 +324,21 @@ function initHvacCalculator() {
    3. VERIFIED PROJECT CASE STUDY MODAL DEEP DIVES
    ========================================================================== */
 const projectData = {
+  proj_plancheck: {
+    title: "PlanCheck NG — Automated NBC 2006 Floor Plan Compliance",
+    subtitle: "AI Builders Global Conference Challenge Winner • SSOJet License Awardee",
+    badge: "AI Product Development & Regulatory Tech",
+    stats: [
+      { label: "Building Code", val: "NBC 2006 (15 Rules)" },
+      { label: "Audit Outputs", val: "Pass / Violation / Unknown" },
+      { label: "Target Layouts", val: "2–3 Bedroom Plans" },
+      { label: "Distinction", val: "SSOJet License Award" }
+    ],
+    problem: "Manual architectural floor plan reviews against the National Building Code of Nigeria (2006) are tedious, inconsistent, and often delay municipal planning approvals. Overlooked regulatory violations result in post-construction demolition risks, poor natural cross-ventilation, and costly architectural rework.",
+    solution: "Engineered PlanCheck NG, an AI compliance platform that parses 2–3 bedroom residential floor plans and validates them against 15 core NBC 2006 provisions (minimum room dimensions, ceiling heights, natural cross-ventilation, window-to-floor ratios, egress clearance, and sanitation zones). Returns deterministic Pass, Violation, or Cannot Determine statuses with exact code clause citations and remediation guidance.",
+    deliverables: "Live web application, regulatory clause database, AI prompt validation framework, and automated compliance summary reports. Selected for an SSOJet license during the AI Builders Global Conference challenge.",
+    liveUrl: "https://space-analyzer-pro.lovable.app/"
+  },
   proj_ai: {
     title: "AI-Driven HVAC & MEP Design Automation",
     subtitle: "Final Year Capstone Research — Obafemi Awolowo University (Team of 2)",
@@ -445,7 +471,12 @@ window.openProjectModal = function(projId) {
       </div>
     </div>
 
-    <div class="pt-3 border-t border-slate-800 flex justify-end gap-3">
+    <div class="pt-3 border-t border-slate-800 flex flex-wrap justify-end gap-3">
+      ${data.liveUrl ? `
+        <a href="${data.liveUrl}" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs font-mono transition-colors flex items-center gap-2">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Launch Live App &rarr;
+        </a>
+      ` : ''}
       <a href="#contact" onclick="closeProjectModal()" class="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs font-mono transition-colors">
         Inquire About Similar Engineering Scope &rarr;
       </a>

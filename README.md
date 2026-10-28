@@ -11,7 +11,7 @@ Mechanical Engineer & HVAC Designer at *View Scope Engineering Services Limited*
 - **Credentials**: B.Sc. Mechanical Engineering (2025), Obafemi Awolowo University (OAU), Ile-Ife
 - **Professional Society**: Graduate Member, Nigerian Society of Engineers (GMNSE)
 - **Current Position**: HVAC Designer, View Scope Engineering Services Limited, Lagos, Nigeria
-- **LinkedIn**: [https://www.linkedin.com/in/zacchaeusadedeji](https://www.linkedin.com/in/zacchaeusadedeji)
+- **LinkedIn**: [https://www.linkedin.com/in/zacchaeus-adedeji-1633911b3/](https://www.linkedin.com/in/zacchaeus-adedeji-1633911b3/)
 - **Email**: [adedejizacchaeus@gmail.com](mailto:adedejizacchaeus@gmail.com)
 - **Phone / WhatsApp**: [+234 907 469 9233](https://wa.me/2349074699233)
 - **Location**: Lagos, Nigeria (Available for On-Site & Global Remote Engineering)
